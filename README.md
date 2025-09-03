@@ -4,7 +4,7 @@ A simple React + Vite app to search books from the **Open Library API**.
 ---
 
 ## 🔗 Demo  
-- Live Demo: *[Add your deployed link here]*  
+- Live Demo: *(https://stackblitz.com/edit/vitejs-vite-xbqhkfno?file=src%2Fmain.jsx)*  
 - Open Library API: [https://openlibrary.org/developers/api](https://openlibrary.org/developers/api)  
 
 ---
