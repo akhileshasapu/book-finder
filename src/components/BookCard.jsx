@@ -1,21 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useBooks } from "../hooks/useBooks";
 
 function BookCard({ book }) {
-  const { setSelectedBook } = useBooks();
-  // This allows the card to update the globally selected book when clicked (useful for opening a modal with extra details).
+  const { setSelectedBook } = useBooks(); 
+  // 👉 This lets us update the "selectedBook" in global state 
+  // when the user clicks a book card (so modal can open).
 
-  const coverUrl = book.cover_i
-    ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-    : "https://via.placeholder.com/150x220?text=No+Cover";
-  // If the API response has a cover_i (OpenLibrarys cover image ID), build the cover image URL.
-  // If not, fall back to a placeholder image (No Cover).
+  // Local state for book cover image
+  const [coverUrl, setCoverUrl] = useState(
+    "https://via.placeholder.com/150x200?text=No+Cover"
+  );
+
+  useEffect(() => {
+    // ⚠️ PROBLEM:
+    // Loading images directly from OpenLibrary in StackBlitz causes CORS/CORP errors.
+    //
+    // ✅ SOLUTION:
+    // Fetch the image as a blob, then convert it into a safe local object URL.
+    if (book.cover_i) {
+      const url = `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`;
+
+      fetch(url)
+        .then((res) => res.blob())
+        .then((blob) => {
+          setCoverUrl(URL.createObjectURL(blob)); // safe local URL
+        })
+        .catch(() => {
+          setCoverUrl("https://via.placeholder.com/150x200?text=No+Cover");
+        });
+    }
+  }, [book.cover_i]);
 
   return (
     <div
-      onClick={() => setSelectedBook(book)}
+      onClick={() => setSelectedBook(book)} // open modal with this book
       className="cursor-pointer bg-gradient-to-br from-purple-200 to-pink-200 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 overflow-hidden flex flex-col"
     >
+      {/* Book cover */}
       <div className="w-full h-48 sm:h-52 md:h-56 lg:h-60 overflow-hidden rounded-t-xl">
         <img
           src={coverUrl}
@@ -23,6 +44,8 @@ function BookCard({ book }) {
           className="w-full h-full object-contain"
         />
       </div>
+
+      {/* Book details */}
       <div className="p-3 flex-1 flex flex-col justify-between">
         <div>
           <h3 className="font-semibold text-sm sm:text-base md:text-lg text-gray-800 truncate">
